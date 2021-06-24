@@ -64,22 +64,24 @@ android {
 
     // default build flavour
     defaultPublishConfig "release"
-    // true to publish all flavour artifacts
-    publishNonDefault true
 }
 
-// Publish default flavour as main artifact, otherwise the maven pom is not generated
-if( android.productFlavors.size() > 0 ) {
+if (android.productFlavors.size() > 0) {
     android.libraryVariants.all { variant ->
-        if( android.publishNonDefault && variant.name == android.defaultPublishConfig ) {
-            def bundleTask = tasks["bundle${name.capitalize()}"]
-            artifacts {
-                archives(bundleTask.archivePath) {
-                    classifier null
-                    builtBy bundleTask
-                }
+        if (variant.name.toLowerCase().contains("debug")) {
+            return
+        }
+
+        def bundleTask = tasks["bundle${variant.name.capitalize()}"]
+
+        artifacts {
+            archives(bundleTask.archivePath) {
+                classifier variant.flavorName
+                builtBy bundleTask
+                name = project.name
             }
         }
+
     }
 }
 
@@ -121,3 +123,58 @@ afterEvaluate {
         }
     }
 }
+
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            group 'org.softwareverde.androidhiddenapibypass'
+            artifactId 'hiddenapibypass'
+            version android.defaultConfig.versionName
+            afterEvaluate {
+                artifact tasks.getByName("bundleReleaseAar")
+                artifact tasks.getByName("generateReleaseJavadocJar")
+                artifact tasks.getByName("generateReleaseSourcesJar")
+            }
+            pom {
+                name = 'Android Hidden Api Bypass'
+                description = 'Bypass restrictions on non-SDK interfaces'
+                url = 'https://github.com/LSPosed/AndroidHiddenApiBypass'
+                licenses {
+                    license {
+                        name = 'The Apache Software License, Version 2.0'
+                        url = 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+                    }
+                }
+                developers {
+                    developer {
+                        name = 'Lsposed'
+                    }
+                }
+                scm {
+                    connection = 'scm:git:https://github.com/SoftwareVerde/AndroidHiddenApiBypass.git'
+                    url = 'https://github.com/SoftwareVerde/AndroidHiddenApiBypass'
+                }
+            }
+        }
+    }
+//    repositories {
+//        maven {
+//            name 'ossrh'
+//            url 'https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/'
+//            credentials PasswordCredentials
+//        }
+//    }
+}
+
+//signing {
+//    def signingKey = findProperty("signingKey")
+//    def signingPassword = findProperty("signingPassword")
+//    def secretKeyRingFile = findProperty("signing.secretKeyRingFile")
+//
+//    if (secretKeyRingFile != null && file(secretKeyRingFile).exists()) {
+//        sign publishing.publications
+//    } else if (signingKey != null) {
+//        useInMemoryPgpKeys(signingKey, signingPassword)
+//        sign publishing.publications
+//    }
+//}
