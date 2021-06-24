@@ -1,4 +1,5 @@
 apply plugin: 'com.android.library'
+apply plugin: 'maven-publish'
 
 group 'com.softwareverde.androidhidddenapibypass'
 version '2.0'
@@ -31,6 +32,35 @@ android {
             excludes += '/*.properties'
         }
     }
+
+//    testOptions {
+//        devices {
+//            api30(ManagedVirtualDevice) {
+//                device = "Pixel 2"
+//                apiLevel = 30
+//                abi = "x86_64"
+//            }
+//            api29(ManagedVirtualDevice) {
+//                device = "Pixel 2"
+//                apiLevel = 29
+//                abi = "x86_64"
+//            }
+//            api28(ManagedVirtualDevice) {
+//                device = "Pixel 2"
+//                apiLevel = 28
+//                abi = "x86_64"
+//            }
+//        }
+//        deviceGroups {
+//            phones {
+//                targetDevices.addAll(devices)
+//            }
+//        }
+//        emulatorSnapshots {
+//            enableForTestFailures false
+//            maxSnapshotsForTestFailures 0
+//        }
+//    }
 }
 
 dependencies {
