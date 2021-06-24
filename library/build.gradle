@@ -1,10 +1,7 @@
-import com.android.build.api.dsl.ManagedVirtualDevice
+apply plugin: 'com.android.library'
 
-plugins {
-    id 'com.android.library'
-    id 'maven-publish'
-    id 'signing'
-}
+group 'com.softwareverde.androidhidddenapibypass'
+version '2.0'
 
 android {
     compileSdk 30
@@ -16,7 +13,7 @@ android {
         versionCode 2
         versionName "2.0"
         consumerProguardFiles "consumer-rules.pro"
-        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        //testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
     buildTypes {
         release {
@@ -34,36 +31,6 @@ android {
             excludes += '/*.properties'
         }
     }
-
-    testOptions {
-        devices {
-            api30(ManagedVirtualDevice) {
-                device = "Pixel 2"
-                apiLevel = 30
-                abi = "x86_64"
-            }
-            api29(ManagedVirtualDevice) {
-                device = "Pixel 2"
-                apiLevel = 29
-                abi = "x86_64"
-            }
-            api28(ManagedVirtualDevice) {
-                device = "Pixel 2"
-                apiLevel = 28
-                abi = "x86_64"
-            }
-        }
-        deviceGroups {
-            phones {
-                targetDevices.addAll(devices)
-            }
-        }
-        emulatorSnapshots {
-            enableForTestFailures false
-            maxSnapshotsForTestFailures 0
-        }
-    }
-
 }
 
 dependencies {
@@ -102,60 +69,5 @@ afterEvaluate {
             from tasks.getByName("generate${variant.name.capitalize()}Javadoc").destinationDir
             classifier 'javadoc'
         }
-    }
-}
-
-publishing {
-    publications {
-        mavenJava(MavenPublication) {
-            group 'org.lsposed.hiddenapibypass'
-            artifactId 'hiddenapibypass'
-            version android.defaultConfig.versionName
-            afterEvaluate {
-                artifact tasks.getByName("bundleReleaseAar")
-                artifact tasks.getByName("generateReleaseJavadocJar")
-                artifact tasks.getByName("generateReleaseSourcesJar")
-            }
-            pom {
-                name = 'Android Hidden Api Bypass'
-                description = 'Bypass restrictions on non-SDK interfaces'
-                url = 'https://github.com/LSPosed/AndroidHiddenApiBypass'
-                licenses {
-                    license {
-                        name = 'The Apache Software License, Version 2.0'
-                        url = 'http://www.apache.org/licenses/LICENSE-2.0.txt'
-                    }
-                }
-                developers {
-                    developer {
-                        name = 'Lsposed'
-                    }
-                }
-                scm {
-                    connection = 'scm:git:https://github.com/LSPosed/AndroidHiddenApiBypass.git'
-                    url = 'https://github.com/LSPosed/AndroidHiddenApiBypass'
-                }
-            }
-        }
-    }
-    repositories {
-        maven {
-            name 'ossrh'
-            url 'https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/'
-            credentials PasswordCredentials
-        }
-    }
-}
-
-signing {
-    def signingKey = findProperty("signingKey")
-    def signingPassword = findProperty("signingPassword")
-    def secretKeyRingFile = findProperty("signing.secretKeyRingFile")
-
-    if (secretKeyRingFile != null && file(secretKeyRingFile).exists()) {
-        sign publishing.publications
-    } else if (signingKey != null) {
-        useInMemoryPgpKeys(signingKey, signingPassword)
-        sign publishing.publications
     }
 }
